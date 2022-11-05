@@ -37,6 +37,9 @@
     "@aws-cdk/core:target-partitions": [
       "aws",
       "aws-cn"
-    ]
+    ],
+    "domain": "movierecommendationswithml.com",
+    "description": "Movie Recommendations with ML",
+    "region": "us-east-1"
   }
 }

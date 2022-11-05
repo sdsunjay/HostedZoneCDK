@@ -1,8 +1,10 @@
-# Welcome to your CDK TypeScript project
+# HostedZone
 
-This is a blank project for CDK development with TypeScript.
+Creates a Route53
+[HostedZone](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_route53.HostedZone.html) for use in other projects using CDK development with TypeScript.
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
+
 
 ## Useful commands
 

@@ -1,21 +1,50 @@
 #!/usr/bin/env node
-import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import { HostedZoneStack } from '../lib/hosted-zone-stack';
+import { HostedZone } from '../lib/hosted-zone';
+
+/**
+ * This stack relies on getting the domain name from CDK context.
+ * Use 'cdk synth -c domain=mystaticsite.com -c subdomain=www'
+ * Or add the following to cdk.json:
+ * {
+ *   "context": {
+ *     "domain": "mystaticsite.com",
+ *     "description": "my static website",
+ *   }
+ * }
+ **/
+/**
+ * Container for records, and records contain information about
+ * how to route traffic for a specific domain, such as example.com and its subdomains
+ */
+class HostedZoneStack extends cdk.Stack {
+  constructor(parent: cdk.App, name: string, props: cdk.StackProps) {
+    super(parent, name, props);
+
+    new HostedZone(this, 'HostedZoneConstruct', {
+      domainName: this.node.tryGetContext('domain'),
+      description: this.node.tryGetContext('description'),
+    });
+  }
+}
 
 const app = new cdk.App();
+
 new HostedZoneStack(app, 'HostedZoneStack', {
-  /* If you don't specify 'env', this stack will be environment-agnostic.
-   * Account/Region-dependent features and context lookups will not work,
-   * but a single synthesized template can be deployed anywhere. */
-
-  /* Uncomment the next line to specialize this stack for the AWS Account
-   * and Region that are implied by the current CLI configuration. */
-  // env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
-
-  /* Uncomment the next line if you know exactly what Account and Region you
-   * want to deploy the stack to. */
-  // env: { account: '123456789012', region: 'us-east-1' },
-
-  /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
+  /**
+   * This is required for our use of hosted-zone.
+   *
+   * Lookups do not work at all without an explicit environment
+   * specified; to use them, you must specify env.
+   * @see https://docs.aws.amazon.com/cdk/latest/guide/environments.html
+   */
+  env: {
+    account: process.env.CDK_DEPLOY_ACCOUNT || process.env.CDK_DEFAULT_ACCOUNT,
+    /**
+     * Stack must be in us-east-1, because the ACM certificate for a
+     * global CloudFront distribution must be requested in us-east-1.
+     */
+    region: process.env.CDK_DEPLOY_REGION || process.env.CDK_DEFAULT_REGION,
+  },
 });
+app.synth();
